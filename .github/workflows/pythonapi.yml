@@ -1,0 +1,57 @@
+name: Deploy Python Inventory API
+
+on:
+  push:
+    branches: ['main']
+  workflow_dispatch:
+
+env:
+  APP_NAME: pythonapi_inventory
+  IMAGE: vishnukanthmca/pythonapi_inventory:latest
+  APP_DIR: /opt/apps/pythonapi_inventory
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: docker build -t $IMAGE .
+
+      - name: Push Docker image
+        run: docker push $IMAGE
+
+      # --- DEPLOY ---
+      - name: Create app directory if not exists
+        run: |
+          sudo mkdir -p $APP_DIR
+          sudo chown $USER:$USER $APP_DIR
+
+      - name: Stop old container if exists
+        run: |
+          docker stop $APP_NAME || true
+          docker rm $APP_NAME || true
+
+      - name: Run new container
+        run: |
+          docker run -d \
+            --name $APP_NAME \
+            -p 8080:8080 \
+            -v $APP_DIR:/data \
+            --restart always \
+            $IMAGE
+
+      - name: Show status
+        run: docker ps

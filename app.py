@@ -11,7 +11,7 @@ class Item(BaseModel):
 # ---- ROOT ENDPOINT ----
 @app.get("/")
 def root():
-    return {"message": "Inventory FastAPI is running!"}
+    return {"message": "Inventory FastAPI is running! And now it is now equipped with continuos integration by Sangeetha!"}
 
 # ---- SAMPLE POST ----
 @app.post("/items")

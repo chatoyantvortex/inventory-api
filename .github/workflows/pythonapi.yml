@@ -48,7 +48,7 @@ jobs:
         run: |
           docker run -d \
             --name $APP_NAME \
-            -p 8080:8080 \
+            -p 8001:8001 \
             -v $APP_DIR:/data \
             --restart always \
             $IMAGE
